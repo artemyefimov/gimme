@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from inspect import Signature, isclass, isfunction, ismethod, signature
-from typing import Any, get_origin, get_type_hints
+from inspect import Signature, get_annotations, isclass, isfunction, ismethod, signature
+from typing import Any, get_origin
 
 
 def injectable_signature(instance: Any) -> Signature:
@@ -24,7 +24,7 @@ def injectable_signature(instance: Any) -> Signature:
 
     original_signature = signature(target)
     parameters = list(original_signature.parameters.values())
-    type_hints = get_type_hints(target)
+    type_hints = get_annotations(target, eval_str=True)
 
     if drop_self and parameters[0].name in ("self", "cls"):
         parameters.pop(0)

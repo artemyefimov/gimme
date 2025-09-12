@@ -1,0 +1,43 @@
+[project]
+name = "gimme"
+version = "0.1.0"
+readme = "README.md"
+authors = [
+    { name = "Artemy Efimov", email = "contact@artemyefimov.com" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2,<9.0.0",
+    "ruff>=0.12.12,<0.13.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+add-bounds = "major"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "D",
+    "ANN401",
+    "PGH003",
+    "TC003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "S101",
+    "INP001",
+    "PLR2004",
+]
+"examples/**" = [
+    "INP001",
+    "SLOT000",
+    "T201",
+]

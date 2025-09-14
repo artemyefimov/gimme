@@ -193,3 +193,15 @@ def test_dependencies_are_cached_within_a_single_run() -> None:
     injector.run(calculate_sum)
 
     assert provide_int_calls_count == 1
+
+
+def test_inject_injector_in_injector_local_scope() -> None:
+    def needs_injector(injector: Injector) -> bool:  # noqa: ARG001
+        return True
+
+    providers = {}
+    providers[bool] = injector_local(needs_injector)
+
+    injector = Injector(providers)
+
+    assert injector.run(get(bool))

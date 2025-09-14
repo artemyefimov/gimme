@@ -41,24 +41,24 @@ def injector_local[**P, R](
 ) -> Callable[Concatenate[Injector, P], R]:
     cache = WeakKeyDictionary[Injector, R]()
 
-    def provider(injector: Injector, *args: P.args, **kwargs: P.kwargs) -> R:
-        if injector in cache:
-            return cache[injector]
+    def provider(injector__: Injector, *args: P.args, **kwargs: P.kwargs) -> R:
+        if injector__ in cache:
+            return cache[injector__]
 
         result = function(*args, **kwargs)
-        cache[injector] = result
+        cache[injector__] = result
         return result
 
     original_signature = signature(function)
     updated_signature = original_signature.replace(
         parameters=[
-            Parameter("injector", Parameter.POSITIONAL_ONLY, annotation=Injector),
+            Parameter("injector__", Parameter.POSITIONAL_ONLY, annotation=Injector),
             *original_signature.parameters.values(),
         ],
     )
 
     provider.__annotations__ = function.__annotations__.copy()
-    provider.__annotations__["injector"] = Injector
+    provider.__annotations__["injector__"] = Injector
     provider.__signature__ = updated_signature  # type: ignore
 
     return provider

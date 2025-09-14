@@ -50,20 +50,23 @@ class _InjectorContext(AbstractContextManager["_InjectorContext"]):
             return self._cached_dependencies[key]
 
         provider = self._providers.get(key, key)
-        value = self.call_with_injection(provider) if callable(provider) else provider
-
-        if not is_instance_of_type_hint(value, key):
-            value = self.unwrap(value)
+        value = self.unwrap(provider, key)
 
         self._cached_dependencies[key] = value
         return value
 
-    def unwrap(self, value: Any) -> Any:
+    def unwrap(self, value: Any, key: Any) -> Any:
+        if is_instance_of_type_hint(value, key):
+            return value
+
         match value:
             case AbstractContextManager() as context_manager:
                 return self._exit_stack.enter_context(context_manager)
             case Iterator() as iterator:
                 return next(iterator)
+            case Callable() as function:
+                result = self.call_with_injection(function)
+                return self.unwrap(result, key)
             case _:
                 return value
 

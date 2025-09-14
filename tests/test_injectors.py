@@ -1,4 +1,4 @@
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import AbstractContextManager, contextmanager
 from itertools import count
 
@@ -205,3 +205,54 @@ def test_inject_injector_in_injector_local_scope() -> None:
     injector = Injector(providers)
 
     assert injector.run(get(bool))
+
+
+def test_inject_callable() -> None:
+    def provide_int() -> int:
+        return 0
+
+    providers = {}
+    providers[Callable[[], int]] = provide_int
+    providers[int] = provide_int
+
+    injector = Injector(providers)
+
+    assert injector.run(get(int)) == 0
+    assert injector.run(get(Callable[[], int])) is provide_int
+
+
+def test_inject_class() -> None:
+    providers = {}
+    providers[type[int]] = int
+
+    injector = Injector(providers)
+
+    assert injector.run(get(type[int])) is int
+
+
+def test_inject_parameter_that_needs_callable() -> None:
+    def parse(s: str, parser: Callable[[str], int]) -> int:
+        return parser(s)
+
+    providers = {}
+    providers[str] = "123"
+    providers[Callable[[str], int]] = int
+    providers[int] = parse
+
+    injector = Injector(providers)
+
+    assert injector.run(get(int)) == 123
+
+
+def test_inject_parameter_that_needs_two_callables() -> None:
+    def parse(get_str: Callable[[], str], parser: Callable[[str], int]) -> int:
+        return parser(get_str())
+
+    providers = {}
+    providers[Callable[[], str]] = lambda: "123"
+    providers[Callable[[str], int]] = int
+    providers[int] = parse
+
+    injector = Injector(providers)
+
+    assert injector.run(get(int)) == 123

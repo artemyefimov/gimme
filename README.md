@@ -76,7 +76,7 @@ assert injector.run(get(str)) == "hello"
 This also works with generic type aliases.
 
 ```python
-providers[str, int] = ("first", 1)
+providers[tuple[str, int]] = ("first", 1)
 ...
 assert injector.run(get(tuple[str, int])) == ("first", 1)
 ```
